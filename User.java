@@ -19,6 +19,7 @@ public class User {
     public String getLastName(){
         return lastName;
     }
+
     public UUID getUserID(){
         return userID;
     }
