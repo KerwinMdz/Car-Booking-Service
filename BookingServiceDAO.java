@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 
 public class BookingServiceDAO {
-    //private ArrayList<Car> cars;
     private final ArrayList<User> users;
     private final ArrayList<Bookings> bookings;
 
