@@ -1,24 +1,28 @@
 import java.time.LocalDateTime;
 import java.util.UUID;
 public class Bookings {
-    private final UUID bookingRefNo;
-    private final LocalDateTime bookingDateTime;
+    private static UUID userBookingID;
+    private static UUID bookingRefNo;
+    private static LocalDateTime bookingDateTime;
+    private int carRegNumber;
 
-    public Bookings(){
+    public Bookings(UUID userBookingIDs, int carRegNumber){
+        this.userBookingID = userBookingIDs;
         this.bookingRefNo = UUID.randomUUID();
         this.bookingDateTime = LocalDateTime.now();
+        this.carRegNumber = carRegNumber;
     }
     //Getters
-    public UUID getBookingRefNo() {
+    public static UUID getBookingRefNo() {
         return bookingRefNo;
     }
-    public LocalDateTime getBookingDateTime(){
+    public static LocalDateTime getBookingDateTime(){
         return bookingDateTime;
     }
-    @Override
-    public String toString(){
-        return "Booking Reference no. " + bookingRefNo + " \n" +
-                "Booking Date & Time: " + bookingDateTime;
-
+    public static UUID getUserBookingID(){
+        return userBookingID;
+    }
+    public int getCarRegNumber(){
+        return carRegNumber;
     }
 }
