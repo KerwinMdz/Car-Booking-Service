@@ -5,6 +5,7 @@ public class Car {
     private double rentalPrice;
     private boolean isElectric;
     private CarBrand carBrand;
+    public boolean isBooked;
 
     //Constructor
     public Car(int regNumber, double rentalPrice, CarBrand carBrand){
@@ -14,6 +15,7 @@ public class Car {
         if(carBrand == CarBrand.TESLA) {
             this.isElectric = true;
         }
+        this.isBooked = false;
     }
     //Getters
     public int getRegNumber(){
@@ -27,5 +29,11 @@ public class Car {
     }
     public CarBrand getCarBrand(){
         return carBrand;
+    }
+    public boolean getIsBooked(){
+        return isBooked;
+    }
+    public void setIsBooked(boolean isBooked){
+        this.isBooked = isBooked;
     }
 }
