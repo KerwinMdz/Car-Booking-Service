@@ -68,6 +68,7 @@ public class Main {
             if(user != null){
             Bookings booking = new Bookings(userUUID, regNum);
             bookingServiceDAO.addBooking(booking);
+            car.setIsBooked(true);
             System.out.println("Car successfully booked with reference no. " + booking.getBookingRefNo());
         } else {
                 System.out.println("User not found.");
@@ -89,7 +90,9 @@ public class Main {
         if(booking != null){
             User user = findUserByID(booking.getUserBookingID());
             System.out.println("Booking Info:\n" + "ID: " + user.getUserID() + "\n" +
-                    "Name: " + user.getFirstName() + " " + user.getLastName() + "\n Booking Ref No. : " + booking.getBookingRefNo());
+                    "Name: " + user.getFirstName() + " " + user.getLastName() + "\nBooking Ref No. : " + booking.getBookingRefNo());
+        } else {
+            System.out.println("\nNo bookings found for this user ID.");
         }
         }
 
@@ -99,15 +102,15 @@ public class Main {
             System.out.println("No Bookings Available");
             return;
         }
-        for(Bookings b : BookingServiceDAO.getBookings()){
+        for(Bookings b : bookingServiceDAO.getBookings()){
             User u = findUserByID(b.getUserBookingID());
             Car c = findCarByRegNum(b.getCarRegNumber());
-            System.out.println("Booking Reference No. " + b.getBookingRefNo() + "\n" +
+            System.out.println("\nBooking Reference No. " + b.getBookingRefNo() + "\n" +
                     "User ID: " + u.getUserID() + "\n" +
                     "Name: " + u.getFirstName() + " " + u.getLastName() + "\n" +
                     "Car Reg No. : " + c.getRegNumber() + "\n" +
                     "Brand: " + c.getCarBrand() + "\n" +
-                    "Booking time: " + b.getBookingDateTime());
+                    "Booking time: " + b.getBookingDateTime() + "\n");
         }
     }
 
@@ -134,7 +137,7 @@ public class Main {
     public static void viewAllElectricCars(){
         boolean found = false;
         for(Car c : cars){
-            if(c.getisElectric()){
+            if(c.getisElectric() && !c.getIsBooked()){
                 found = true;
                 System.out.println("Car Brand: " + c.getCarBrand() + "\n" + "Registration Number: " + c.getRegNumber() + "\n" +
                         "Rental Price Per Day: " + c.getRentalPrice() + "\n" + "Electric Vehicle: " + c.getisElectric() + "\n");
@@ -192,9 +195,11 @@ public class Main {
 //
 //    //Display All Cars
     private static void displayALlCars(){
-        for(Car c : cars){
-            System.out.println("Car Brand: " + c.getCarBrand() + "\n" + "Registration Number: " + c.getRegNumber() + "\n" +
-                    "Rental Price Per Day: " + c.getRentalPrice() + "\n" + "Electric Vehicle: " + c.getisElectric() + "\n");
+        for(Car c : cars) {
+            if (!c.getIsBooked()) {
+                System.out.println("Car Brand: " + c.getCarBrand() + "\n" + "Registration Number: " + c.getRegNumber() + "\n" +
+                        "Rental Price Per Day: " + c.getRentalPrice() + "\n" + "Electric Vehicle: " + c.getisElectric() + "\n");
+            }
         }
     }
 //
