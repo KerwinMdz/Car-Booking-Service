@@ -8,7 +8,7 @@ public class Main {
     private static BookingServiceDAO bookingServiceDAO = new BookingServiceDAO(new ArrayList<>(), new ArrayList<>());
 
     private static ArrayList<Car> cars = new ArrayList<>();
-    private static ArrayList<User> user = new ArrayList<>();
+    //private static ArrayList<User> user = new ArrayList<>();
 
 
     public static void main(String[] args) {
@@ -18,30 +18,34 @@ public class Main {
         cars.add(new Car(2134, 199.00, CarBrand.TESLA));
 
 
-        user.add(new User("Kevin", "Jackson"));
-        user.add(new User("Zaya", "James"));
+//        user.add(new User("Kevin", "Jackson"));
+//        user.add(new User("Zaya", "James"));
 
         while (true) {
             System.out.println("\nMenu:");
-            System.out.println("1. Book a car");
-            System.out.println("2. View all user booked cars");
-            System.out.println("3. View all bookings");
-            System.out.println("4. View available cars");
-            System.out.println("5. View available electric cars");
-            System.out.println("6. View all users");
-            System.out.println("7. Exit");
+            System.out.println("1. Add a user");
+            System.out.println("2. Book a car");
+            System.out.println("3. View all user booked cars");
+            System.out.println("4. View all bookings");
+            System.out.println("5. View available cars");
+            System.out.println("6. View available electric cars");
+            System.out.println("7. View all users");
+            System.out.println("8. Add a car");
+            System.out.println("9. Exit");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
 
             switch (choice){
-                case 1 -> bookCar();
-                case 2 -> viewAllUserBookedCars();
-                case 3 -> viewAllBookings();
-                case 4 -> viewAllAvailableCars();
-                case 5 -> viewAllElectricCars();
-                case 6 -> viewAllUsers();
-                case 7 -> {
+                case 1 -> addUser();
+                case 2 -> bookCar();
+                case 3 -> viewAllUserBookedCars();
+                case 4 -> viewAllBookings();
+                case 5 -> viewAllAvailableCars();
+                case 6 -> viewAllElectricCars();
+                case 7 -> viewAllUsers();
+                case 8 -> addCar();
+                case 9 -> {
                     System.out.println("Thank you for using the car booking service!");
                     return;
                 }
@@ -49,6 +53,37 @@ public class Main {
             }
         }
     }
+    //Add a car
+    private static void addCar(){
+        //boolean found = false;
+        System.out.print("Enter car registration number: ");
+        int regNum = scanner.nextInt();
+        System.out.print("Enter car rental price: ");
+        double rentalPrice = scanner.nextDouble();
+        System.out.print("Enter car brand: ");
+        String carBrand = scanner.next();
+
+        try{
+            CarBrand brand = CarBrand.valueOf(carBrand.toUpperCase());
+            Car car = new Car(regNum, rentalPrice, brand);
+            cars.add(car);
+        } catch (Exception e) {
+            System.out.println("Invalid brand!");
+        }
+    }
+
+    //Add a user
+    private static void addUser(){
+        System.out.print("Enter first name: ");
+        String firstName = scanner.next();
+        System.out.print("Enter last name: ");
+        String lastName = scanner.next();
+
+        User user = new User(firstName, lastName);
+        bookingServiceDAO.addUser(user);
+        System.out.println("\nUser added successfully! User ID: " + user.getUserID());
+    }
+
     private static void bookCar(){
         displayALlCars();
         System.out.println("Enter Car Registration No. : ");
@@ -149,10 +184,26 @@ public class Main {
     }
     //View All Users
     public static void viewAllUsers(){
-        for(User u : user){
-            System.out.println("\nName: " + u.getFirstName() + " " + u.getLastName() + "\n" +
-                    "User ID: " + u.getUserID());
-        }
+        if (bookingServiceDAO.getAllUsers().isEmpty()){
+                System.out.println("\nNo users found.");
+            } else {
+                for (User u : bookingServiceDAO.getAllUsers()) {
+                    System.out.println("\nName: " + u.getFirstName() + " " + u.getLastName() + "\n" +
+                            "User ID: " + u.getUserID());
+                }
+            }
+        //-----Optimized, much cleaner way for future reference-----
+        /**
+         List<User> users = bookingServiceDAO.getAllUsers();
+         if (users.isEmpty()){
+         System.out.println("No users found.");
+         } else {
+         for (User u : users) {
+         System.out.println("\nName: " + u.getFirstName() + " " + u.getLastName() + "\n" +
+         "User ID: " + u.getUserID());
+         }
+         }
+         **/
     }
     //isCarBooked Method
     private static boolean isCarBooked(int regNum){
@@ -184,7 +235,7 @@ public class Main {
     }
     //Find User By id
     public static User findUserByID(UUID uuid){
-        for(User u : user){
+        for(User u : bookingServiceDAO.getAllUsers()){
             if(u.getUserID().equals(uuid)){
                 return u;
             }
@@ -205,7 +256,7 @@ public class Main {
 //
 //    //Display All Users
     public static void displayAllUsers(){
-        for(User u : user){
+        for(User u : bookingServiceDAO.getAllUsers()){
             System.out.println("Name: " + u.getFirstName() + " " + u.getLastName() + "\n" +
                     "User ID: " + u.getUserID());
         }
