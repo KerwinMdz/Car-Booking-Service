@@ -8,14 +8,17 @@ public class Main {
     private static BookingServiceDAO bookingServiceDAO = new BookingServiceDAO(new ArrayList<>(), new ArrayList<>());
 
     private static ArrayList<Car> cars = new ArrayList<>();
+//    private static ArrayList<ElectricCar> electricCars = new ArrayList<>();
+//    private static ArrayList<GasCar> gasCars = new ArrayList<>();
+//    private static ArrayList<HybridCar> hybridCars = new ArrayList<>();
     //private static ArrayList<User> user = new ArrayList<>();
 
 
     public static void main(String[] args) {
 
-        cars.add(new Car(1234, 99.00, CarBrand.BMW));
-        cars.add(new Car(4321, 55.00, CarBrand.TOYOTA));
-        cars.add(new Car(2134, 199.00, CarBrand.TESLA));
+//        cars.add(new Car(1234, 99.00, CarBrand.BMW));
+//        cars.add(new Car(4321, 55.00, CarBrand.TOYOTA));
+//        electricCars.add(new ElectricCar(2134, 199.00, CarBrand.TESLA, 99));
 
 
 //        user.add(new User("Kevin", "Jackson"));
@@ -55,18 +58,45 @@ public class Main {
     }
     //Add a car
     private static void addCar(){
-        //boolean found = false;
         System.out.print("Enter car registration number: ");
         int regNum = scanner.nextInt();
+        //Test
+        while (checkRegNo(regNum)){
+            System.out.println("Registration Number Already Existed!");
+            System.out.print("Enter car registration number: ");
+            regNum = scanner.nextInt();
+        }
         System.out.print("Enter car rental price: ");
         double rentalPrice = scanner.nextDouble();
         System.out.print("Enter car brand: ");
         String carBrand = scanner.next();
+        System.out.print("Enter Car Type: ");
+        String carType = scanner.next();
 
         try{
             CarBrand brand = CarBrand.valueOf(carBrand.toUpperCase());
-            Car car = new Car(regNum, rentalPrice, brand);
-            cars.add(car);
+        if(carType.equalsIgnoreCase("Electric")){
+            System.out.print("Enter Battery Capacity: ");
+            int batteryCapacity = scanner.nextInt();
+            Car electricCar = new ElectricCar(regNum, rentalPrice, brand, carType, batteryCapacity);
+            cars.add(electricCar);
+            System.out.println("Successfully added: " + electricCar.getCarBrand());
+        } else if (carType.equalsIgnoreCase("Gas")) {
+            System.out.print("Enter Fuel Capacity: ");
+            int fuelCapacity = scanner.nextInt();
+            GasCar gasCar = new GasCar(regNum, rentalPrice, brand, carType, fuelCapacity);
+            cars.add(gasCar);
+            System.out.println("Successfully added: " + gasCar.getCarBrand());
+        } else if (carType.equalsIgnoreCase("Hybrid")) {
+            System.out.print("Enter Battery Capacity: ");
+            int batteryCapacity = scanner.nextInt();
+            System.out.print("Enter Fuel Capacity: ");
+            int fuelCapacity = scanner.nextInt();
+            HybridCar hybridCar = new HybridCar(regNum, rentalPrice, brand, carType, batteryCapacity,  fuelCapacity);
+            cars.add(hybridCar);
+            System.out.println("Successfully added: " + hybridCar.getCarBrand());
+        } else
+            System.out.print("Sorry Unable to Process!");
         } catch (Exception e) {
             System.out.println("Invalid brand!");
         }
@@ -85,31 +115,35 @@ public class Main {
     }
 
     private static void bookCar(){
-        displayALlCars();
-        System.out.println("Enter Car Registration No. : ");
-        int regNum = scanner.nextInt();
-
-        Car car = findCarByRegNum(regNum);
-        if(car != null){
-            Main.displayAllUsers();
-        }
-
-        System.out.println("Enter User ID: ");
-        scanner.nextLine();
-        String userID = scanner.nextLine();
-        try{
-            UUID userUUID = UUID.fromString(userID);
-            User user = findUserByID(userUUID);
-            if(user != null){
-            Bookings booking = new Bookings(userUUID, regNum);
-            bookingServiceDAO.addBooking(booking);
-            car.setIsBooked(true);
-            System.out.println("Car successfully booked with reference no. " + booking.getBookingRefNo());
+        if(BookingServiceDAO.getAllUsers().isEmpty() && cars.isEmpty()){
+            System.out.println("Add a user and car before you booking");
         } else {
-                System.out.println("User not found.");
+            displayALlCars();
+            System.out.println("Enter Car Registration No. : ");
+            int regNum = scanner.nextInt();
+
+            Car car = findCarByRegNum(regNum);
+            if (car != null) {
+                Main.displayAllUsers();
             }
+
+            System.out.println("Enter User ID: ");
+            scanner.nextLine();
+            String userID = scanner.nextLine();
+            try {
+                UUID userUUID = UUID.fromString(userID);
+                User user = findUserByID(userUUID);
+                if (user != null) {
+                    Bookings booking = new Bookings(userUUID, regNum);
+                    bookingServiceDAO.addBooking(booking);
+                    car.setIsBooked(true);
+                    System.out.println("Car successfully booked with reference no. " + booking.getBookingRefNo());
+                } else {
+                    System.out.println("User not found.");
+                }
             } catch (IllegalArgumentException e) {
-            System.out.println("Invalid UUID");
+                System.out.println("Invalid UUID");
+            }
         }
     }
 
@@ -145,6 +179,7 @@ public class Main {
                     "Name: " + u.getFirstName() + " " + u.getLastName() + "\n" +
                     "Car Reg No. : " + c.getRegNumber() + "\n" +
                     "Brand: " + c.getCarBrand() + "\n" +
+                    "Car Type: " + c.getCarType() + "\n" +
                     "Booking time: " + b.getBookingDateTime() + "\n");
         }
     }
@@ -160,8 +195,17 @@ public class Main {
         for(Car c : cars){
             if(!isCarBooked(c.getRegNumber())){
                 found = true;
+                if(c instanceof ElectricCar electricCar && c.getCarType().equalsIgnoreCase("Electric")){
                 System.out.println("Car Brand: " + c.getCarBrand() + "\n" + "Registration Number: " + c.getRegNumber() + "\n" +
-                        "Rental Price Per Day: " + c.getRentalPrice() + "\n" + "Electric Vehicle: " + c.getisElectric() + "\n");
+                        "Rental Price Per Day: " + c.getRentalPrice() + "\n" + "Car Type: " + c.getCarType() + "\n" + "Battery Capacity: " + electricCar.getBatteryCapacity() + " kWh\n");
+            } else if (c instanceof HybridCar hybridCar && c.getCarType().equalsIgnoreCase("Hybrid")) {
+                    System.out.println("Car Brand: " + c.getCarBrand() + "\n" + "Registration Number: " + c.getRegNumber() + "\n" +
+                            "Rental Price Per Day: " + c.getRentalPrice() + "\n" + "Car Type: " + c.getCarType() + "\n" + "Battery Capacity: " + hybridCar.getBatteryCapacity() + " kWh" + "\n" +
+                            "Fuel Capacity: " + hybridCar.getFuelCapacity() + " gallons\n");
+                } else if (c instanceof GasCar gasCar && c.getCarType().equalsIgnoreCase("Gas")) {
+                    System.out.println("Car Brand: " + c.getCarBrand() + "\n" + "Registration Number: " + c.getRegNumber() + "\n" +
+                            "Rental Price Per Day: " + c.getRentalPrice() + "\n" + "Car Type: " + c.getCarType() + "\n" + "Fuel Capacity: " + gasCar.getFuelCapacity() + " gallons\n");
+                }
             }
         }
         if(!found){
@@ -171,12 +215,15 @@ public class Main {
     //View all electric vehicles
     public static void viewAllElectricCars(){
         boolean found = false;
-        for(Car c : cars){
-            if(c.getisElectric() && !c.getIsBooked()){
-                found = true;
-                System.out.println("Car Brand: " + c.getCarBrand() + "\n" + "Registration Number: " + c.getRegNumber() + "\n" +
-                        "Rental Price Per Day: " + c.getRentalPrice() + "\n" + "Electric Vehicle: " + c.getisElectric() + "\n");
-            }
+        for(Car c : cars) {
+            if (c instanceof ElectricCar electricCar){
+                if (electricCar.getisElectric() && !electricCar.getIsBooked()) {
+                    found = true;
+                    System.out.println("Car Brand: " + electricCar.getCarBrand() + "\n" + "Registration Number: " + electricCar.getRegNumber() + "\n" +
+                            "Rental Price Per Day: " + electricCar.getRentalPrice() + "\n" + "Battery Capacity: " + electricCar.getBatteryCapacity() + "\n");
+                }
+        }
+
         }
         if(!found){
             System.out.println("No electric cars found.");
@@ -245,21 +292,42 @@ public class Main {
 //
 //
 //    //Display All Cars
-    private static void displayALlCars(){
-        for(Car c : cars) {
-            if (!c.getIsBooked()) {
-                System.out.println("Car Brand: " + c.getCarBrand() + "\n" + "Registration Number: " + c.getRegNumber() + "\n" +
-                        "Rental Price Per Day: " + c.getRentalPrice() + "\n" + "Electric Vehicle: " + c.getisElectric() + "\n");
+    private static void displayALlCars() {
+        for (Car c : cars) {
+            if (c instanceof ElectricCar electricCar) {
+                if (!electricCar.getIsBooked()) {
+                    System.out.println("Car Brand: " + electricCar.getCarBrand() + "\n" + "Registration Number: " + electricCar.getRegNumber() + "\n" +
+                            "Rental Price Per Day: " + electricCar.getRentalPrice() + "\n" + "Car Type: " + electricCar.getCarType() + "\n" + "Battery Capacity: " + electricCar.getBatteryCapacity());
+                }
+                } else if (c instanceof GasCar gasCar) {
+                if(!gasCar.getIsBooked()) {
+                    System.out.println("Car Brand: " + gasCar.getCarBrand() + "\n" + "Registration Number: " + gasCar.getRegNumber() + "\n" +
+                            "Rental Price Per Day: " + gasCar.getRentalPrice() + "\n" + "Car Type: " + gasCar.getCarType() + "\n" + "Fuel Capacity: " + gasCar.getFuelCapacity());
+                }
+            } else if (c instanceof HybridCar hybridCar){
+                if (!hybridCar.getIsBooked()) {
+                    System.out.println("Car Brand: " + hybridCar.getCarBrand() + "\n" + "Registration Number: " + hybridCar.getRegNumber() + "\n" +
+                            "Rental Price Per Day: " + hybridCar.getRentalPrice() + "\n" + "Car Type: " + hybridCar.getCarType() + "\n" + "Fuel Capacity: " + hybridCar.getFuelCapacity() + "\n" + "Battery Capacity: " + hybridCar.getBatteryCapacity());
+                }
             }
         }
-    }
-//
-//    //Display All Users
-    public static void displayAllUsers(){
-        for(User u : bookingServiceDAO.getAllUsers()){
-            System.out.println("Name: " + u.getFirstName() + " " + u.getLastName() + "\n" +
-                    "User ID: " + u.getUserID());
         }
+
+        //Display All Users
+        public static void displayAllUsers(){
+            for (User u : bookingServiceDAO.getAllUsers()) {
+                System.out.println("Name: " + u.getFirstName() + " " + u.getLastName() + "\n" +
+                        "User ID: " + u.getUserID());
+            }
+        }
+        //RegNo Validation
+    public static boolean checkRegNo(int regNumber){
+        for (Car car : cars){
+            if(car.getRegNumber() == regNumber){
+                return true;
+            }
+        }
+        return false;
     }
 
         } //end of Main class
